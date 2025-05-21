@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node proxy-server.js",
     "test": "echo \"No tests yet\""
   },
   "keywords": [],
