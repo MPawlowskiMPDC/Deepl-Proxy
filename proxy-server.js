@@ -3,8 +3,6 @@ import express from "express";
 import cors from "cors";
 import * as deepl from 'deepl-node';
 import multer from 'multer';
-import mime from "mime-types";
-import { PassThrough } from 'stream';
 import { fileURLToPath } from "url";
 import fs from "fs";
 import path from "path";
@@ -22,7 +20,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors({ 
-  origin: "*", // Adjust to specific origins if needed
+  origin: "*", 
   methods: "GET,POST",
   allowedHeaders: "Content-Type",
   exposedHeaders: "Content-Disposition"
@@ -74,7 +72,7 @@ app.post("/translate-document", upload.single("file"), async (req, res) => {
           req.file.buffer,  // Pass file as a Buffer
           null,
           targetLang, 
-          options  // Properly set filename
+          options  
       );
       }
       catch (err) {
@@ -110,10 +108,8 @@ app.post("/get-document-status", async (req, res) => {
       res.status(500).json({ error: "Failed to get document status" });
     }
   });
+
 // Download Translated Document
-
-
-
 app.post("/download-document", async (req, res) => {
   try {
     const { document_id, document_key, outputFileName } = req.body;
