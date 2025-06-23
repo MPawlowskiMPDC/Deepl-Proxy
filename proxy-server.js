@@ -34,7 +34,7 @@ app.post("/translate", async (req, res) => {
     try {
         const { text, source_lang, target_lang } = req.body;
         
-        // Validate input
+        // Validate input for text or target language
         if (!text || !target_lang) {
             return res.status(400).json({ error: "Missing required fields: text or targetLang" });
         }
