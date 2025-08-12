@@ -1,4 +1,7 @@
-name: Build and deploy Node.js app to Azure Web Apps
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy Node.js app to Azure Web App - DeepL-Proxy
 
 on:
   push:
@@ -10,66 +13,53 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read #This is required for actions/checkout
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'  # LTS; 22.x ist aktuell noch unsupportet bei manchen Hosts
+          node-version: '22.x'
 
-      - name: Install, build & test
+      - name: npm install, build, and test
         run: |
           npm install
           npm run build --if-present
           npm run test --if-present
 
-      - name: Package app
-        run: zip -r release.zip .
-
-      - name: Upload artifact
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: release.zip
+          path: .
 
   deploy:
-    needs: build
     runs-on: ubuntu-latest
+    needs: build
     permissions:
-      id-token: write
-      contents: read
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
     steps:
-      - name: Download artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: node-app
-
-      - name: Unzip artifact
-        run: unzip release.zip
-
-      - name: Azure Login
+      
+      - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_10C0C7309C9245D48D19086AFF162022 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_2AA881ACABEA4240A89816BBAD29FEC5 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DE3B7F61332D4AA7AF0DCF18E72C4A06 }}
 
-      - name: Deploy to Azure Web App #1 (mein-deepl-proxy)
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'mein-deepl-proxy'
-          slot-name: 'Production'
-          package: '.'
-
-      - name: Deploy to Azure Web App #2 (deepl-proxy)
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'DeepL-Proxy'
           slot-name: 'Production'
-          package: '.'
+          package: .
+          
